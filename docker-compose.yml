@@ -1,0 +1,36 @@
+version: '2'
+services:
+
+  # The Application
+  eds-lesson-php:
+    build:
+      context: ./
+      dockerfile: docker/php/Dockerfile
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    environment:
+      - "DB_PORT=3306"
+      - "DB_HOST=eds-lesson-database"
+
+  eds-lesson-web:
+    image: nginx:1.10
+    working_dir: /var/www
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    volumes_from:
+      - eds-lesson-php
+    ports:
+      - 8082:80
+
+  eds-lesson-database:
+    image: mysql:5.7
+    volumes:
+      - ./dbdata:/var/lib/mysql
+    environment:
+      - "MYSQL_DATABASE=Quant"
+      - "MYSQL_USER=edsadmin"
+      - "MYSQL_PASSWORD=edsadmin"
+      - "MYSQL_ROOT_PASSWORD=edsadmin"
+    ports:
+        - "33061:3306"
